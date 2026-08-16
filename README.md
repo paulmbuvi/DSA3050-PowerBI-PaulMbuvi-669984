@@ -6,9 +6,11 @@
 **Course:** DSA 3050A – Business Intelligence & Data Visualization
 **Tool:** Microsoft Power BI Desktop
 
+---
+
 ## 1. Project Overview
 
-- This project develops an interactive Business Intelligence solution using Power BI to analyze e-commerce sales, orders, customers, products, sellers, delivery performance, customer reviews and payments on the Olist Brazilian e-commerce marketplace.
+This project develops an interactive Business Intelligence solution using Power BI to analyze e-commerce sales, orders, customers, products, sellers, delivery performance, customer reviews and payments on the Olist Brazilian e-commerce marketplace.
 
 The project follows the BI development process:
 
@@ -48,6 +50,8 @@ The main tables used in the analysis include:
 
 Key variables include: Order ID, Customer ID, Product ID, Seller ID, Purchase Date, Delivery Date, Product Category, Customer State, Seller State, Payment Value, Payment Installments, Review Score, Product Weight, Product Dimensions.
 
+![Raw Data](screenshots/01_raw_data.png)
+
 ### 2.5 Business/Analytical Problem
 
 <!-- TODO: Paul — 2-3 sentences describing the business problem you're investigating (e.g. sales performance, delivery performance, customer satisfaction drivers) -->
@@ -60,7 +64,8 @@ Key variables include: Order ID, Customer ID, Product ID, Seller ID, Purchase Da
 4. How does sales performance trend over time?
 5. What proportion of orders are delivered late, and how does this vary?
 6. Does delivery performance relate to customer review scores?
-7. <!-- TODO: Paul — add 1-2 more questions specific to your Page 3 diagnostic analysis, e.g. about the Jan 2018 sales spike you noticed -->
+7. What caused the single-day sales spike on 24 November 2017, and did it affect delivery performance?
+8. Do average order values vary meaningfully by customer state, and which states sit above or below the national average?
 
 ---
 
@@ -122,7 +127,7 @@ Power Query was used to clean, transform and prepare the source data before load
 **Reason:** Keeps the data model lean and focused on the tables actually used.
 **Result:** Faster refresh times and a cleaner Fields pane.
 
-<!-- TODO: Paul — insert screenshot 02_power_query.png here, e.g.: ![Power Query](screenshots/02_power_query.png) -->
+![Power Query](screenshots/02_power_query.png)
 
 ---
 
@@ -165,7 +170,7 @@ Each dimension table was created to isolate descriptive attributes (customer, pr
 
 **Modelling challenge encountered:** the initial relationship between `DimDate` and `FactOrders` used the raw `order_purchase_timestamp` (Date/Time) field, which caused almost all sales to fall into a blank date bucket because time-of-day components rarely matched exactly. This was resolved by creating a pure-date column (`order_purchase_date`) in Power Query and relating on that instead (see Transformation 4 above).
 
-<!-- TODO: Paul — insert screenshot 03_model.png here, e.g.: ![Data Model](screenshots/03_model.png) -->
+![Data Model](screenshots/03_model.png)
 
 ---
 
@@ -246,23 +251,32 @@ The report contains three pages, moving from overview to detailed analysis to di
 ### Page 1 – Executive Dashboard
 KPI cards (Total Sales, Total Orders, Total Customers, Average Order Value, Average Review Score, Average Delivery Days), Sales by Product Category, Sales Trend Over Time, Total Orders by Delivery Performance, Total Sales by Customer State (map). Slicers: date range, customer state.
 
-<!-- TODO: Paul — insert screenshot 04_dashboard_overview.png here -->
+![Executive Dashboard](screenshots/04_dashboard_overview.png)
 
-### Page 2 – Detailed Analysis
-<!-- TODO: Paul — fill in once Page 2 is built -->
+### Page 2 – Product & Seller Analysis
+A deeper look at product and seller performance. KPI cards (Total Products, Total Sellers, Average Review Score, Total Payment Value), Top Product Categories by Sales with `Category Sales Rank`, Product Weight vs Sales scatter, Sales by Seller State, Top Seller Cities by Sales, and a Delivery Status table (Category, Total Sales, Late Delivery %, `Delivery Status Label`) that shows delivery performance varies meaningfully by product category rather than being a flat, dataset-wide number. Slicers: product category, seller state.
 
-<!-- TODO: Paul — insert screenshot 05_dashboard_analysis.png here -->
+![Product & Seller Analysis](screenshots/05_dashboard_analysis.png)
 
-### Page 3 – Advanced/Diagnostic Analysis
-<!-- TODO: Paul — fill in once Page 3 is built. Consider investigating the January 2018 sales spike visible on Page 1's trend line. -->
+### Page 3 – Diagnostic Insights
+Investigates *why* certain patterns occur rather than just describing them. Includes: Average Review Score by Delivery Performance (shows review scores drop for late deliveries), a Total Sales by Date trend with a linked table isolating the single highest-sales day, Order Value vs Overall Avg by customer state (using the `VAR`-based measure to flag states above/below the national baseline), Late Orders by Date, and Payment Value by Installments. Slicers: date range, delivery performance.
 
-<!-- TODO: Paul — insert screenshot 06_dashboard_insights.png here -->
+**Key diagnostic finding:** the single highest sales day in the dataset was **24 November 2017 (Black Friday)**, with $152,653.74 in sales from 1,176 orders — more than double any other day. Late Orders also spike at exactly the same point on the timeline, showing the demand surge visibly strained delivery performance.
+
+![Diagnostic Insights](screenshots/06_dashboard_insights.png)
 
 ---
 
 ## 8. Key Business Insights
 
-<!-- TODO: Paul — write 5-7 bullet points of actual findings once all 3 pages are built, e.g. which category drives the most sales, which states underperform, the delivery/review relationship, the payment installment pattern, and what caused the Jan 2018 spike. -->
+- Health & beauty and watches/gifts are consistently the top-selling product categories by total sales.
+- 90.45% of orders are delivered On Time; the remaining orders split between Late and Not Delivered.
+- Late deliveries are associated with lower average review scores than On Time deliveries — delivery performance measurably affects customer satisfaction.
+- Late Delivery % varies meaningfully by product category (roughly 3.8%–7.2% across categories), rather than being a flat, dataset-wide rate — some categories carry higher delivery risk than others.
+- Average Order Value varies by customer state relative to the national baseline, with some states sitting well above or below average.
+- The single highest-sales day across the whole dataset was **24 November 2017 (Black Friday)** — $152,653.74 in sales from 1,176 orders, more than double any other single day.
+- Late Orders spike at the same point as the Black Friday sales surge, showing the demand spike put visible strain on delivery performance.
+<!-- TODO: Paul — add 1-2 more insights in your own words if you notice anything else worth calling out (e.g. from the payment installments or seller state charts) -->
 
 ---
 
@@ -274,18 +288,18 @@ The dashboard uses:
 - Cross-filtering between visuals
 - Interactive KPI cards
 - Time-based analysis via the dedicated Date Table
-<!-- TODO: Paul — add any drill-through, bookmarks, tooltips, or navigation buttons you implement on Pages 2/3 -->
+- Conditional table sorting to surface the highest-impact rows (e.g. the Black Friday spike day, worst-performing delivery categories)
 
 ---
 
 ## 10. Screenshots and Evidence
 
-- `01_raw_data.png` — <!-- TODO: screenshot of one raw CSV opened in Power Query before transformation -->
-- `02_power_query.png` — <!-- TODO: screenshot of Power Query Editor showing applied steps -->
-- `03_model.png` — <!-- TODO: screenshot of completed Model View -->
+- `01_raw_data.png` — Raw dataset before transformation
+- `02_power_query.png` — Power Query Editor showing FactOrders and its applied transformation steps
+- `03_model.png` — Completed star-schema Model View
 - `04_dashboard_overview.png` — Executive Dashboard (Page 1)
-- `05_dashboard_analysis.png` — Detailed Analysis (Page 2)
-- `06_dashboard_insights.png` — Advanced/Diagnostic Analysis (Page 3)
+- `05_dashboard_analysis.png` — Product & Seller Analysis (Page 2)
+- `06_dashboard_insights.png` — Diagnostic Insights (Page 3)
 
 ---
 
