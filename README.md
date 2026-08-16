@@ -279,19 +279,19 @@ The report contains three pages, moving from overview to detailed analysis to di
 ### Page 1 – Executive Dashboard
 KPI cards (Total Sales, Total Orders, Total Customers, Average Order Value, Average Review Score, Average Delivery Days), Sales by Product Category, Sales Trend Over Time, Total Orders by Delivery Performance, Total Sales by Customer State (map). Slicers: date range, customer state.
 
-![Executive Dashboard](screenshots/04_dashboard_overview.png)
+![Executive Dashboard](screenshots/04_Dashboard_Overview.png)
 
 ### Page 2 – Product & Seller Analysis
 A deeper look at product and seller performance. KPI cards (Total Products, Total Sellers, Average Review Score, Total Payment Value), Top Product Categories by Sales with `Category Sales Rank`, Product Weight vs Sales scatter, Sales by Seller State, Top Seller Cities by Sales, and a Delivery Status table (Category, Total Sales, Late Delivery %, `Delivery Status Label`) that shows delivery performance varies meaningfully by product category rather than being a flat, dataset-wide number. Slicers: product category, seller state.
 
-![Product & Seller Analysis](screenshots/05_dashboard_analysis.png)
+![Product & Seller Analysis](screenshots/05_Dashboard_Analysis.png)
 
 ### Page 3 – Diagnostic Insights
 Investigates *why* certain patterns occur rather than just describing them. Includes: Average Review Score by Delivery Performance (shows review scores drop for late deliveries), a Total Sales by Date trend with a linked table isolating the single highest-sales day, Order Value vs Overall Avg by customer state (using the `VAR`-based measure to flag states above/below the national baseline), Late Orders by Date, and Payment Value by Installments. Slicers: date range, delivery performance.
 
 **Key diagnostic finding:** the single highest sales day in the dataset was **24 November 2017 (Black Friday)**, with $152,653.74 in sales from 1,176 orders — more than double any other day. Late Orders also spike at exactly the same point on the timeline, showing the demand surge visibly strained delivery performance.
 
-![Diagnostic Insights](screenshots/06_dashboard_insights.png)
+![Diagnostic Insights](screenshots/06_Dashboard_insights.png)
 
 ---
 
