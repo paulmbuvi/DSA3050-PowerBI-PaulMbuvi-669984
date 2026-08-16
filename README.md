@@ -28,11 +28,11 @@ The objective is to transform raw e-commerce data into an interactive analytical
 
 ### 2.2 What the Dataset Represents
 
-<!-- TODO: Paul — write 2-3 sentences in your own words describing what the Olist dataset covers (orders, customers, sellers, products, payments, reviews, 2016-2018, Brazilian marketplace) -->
+- The dataset contains real order records from Olist, a Brazilian e-commerce marketplace, covering orders placed between [2016] and [2018]. Each order links a customer to one or more products, a seller, a payment, a delivery outcome, and (where available) a customer review. Together the tables span the full transaction lifecycle — from purchase to delivery to review.
 
 ### 2.3 Why This Dataset Was Selected
 
-<!-- TODO: Paul — explain in your own words why you picked this dataset. Note: it should satisfy the rubric requirement of >20,000 records, multiple numerical/categorical variables, date/time data, and KPI-suitable variables — mention which ones. -->
+- This dataset was selected because it contains over 100,000 real orders across multiple related tables — orders, customers, products, sellers, payments and reviews — giving it enough complexity to support a proper star-schema model rather than a single flat table. It includes numerical variables such as [price, freight value, payment value, review score], categorical variables such as [product category, customer state, delivery performance], and date/time fields such as [order purchase timestamp, delivery dates], which support both KPI calculation and time-based analysis. Unlike a pre-cleaned dataset, it required real data cleaning and transformation work in Power Query, which better demonstrates BI development skills
 
 ### 2.4 Main Variables
 
@@ -54,7 +54,7 @@ Key variables include: Order ID, Customer ID, Product ID, Seller ID, Purchase Da
 
 ### 2.5 Business/Analytical Problem
 
-<!-- TODO: Paul — 2-3 sentences describing the business problem you're investigating (e.g. sales performance, delivery performance, customer satisfaction drivers) -->
+- This project investigates how sales performance, delivery reliability, and customer satisfaction interact on the Olist marketplace. Specifically, it examines which product categories and regions drive the most revenue, how consistently orders are delivered on time, and whether delivery performance affects customer reviews. The goal is to give management a tool to identify not just what is happening in the business, but where operational issues (like late deliveries) may be undermining customer satisfaction and revenue
 
 ### 2.6 Analytical Questions
 
@@ -79,11 +79,15 @@ Power Query was used to clean, transform and prepare the source data before load
 **Reason:** Correct data types are required for accurate calculations, filtering, sorting, and time intelligence.
 **Result:** All fields could be used correctly in measures and visuals without type errors.
 
+![Data Type](screenshots/Transformation_1.png)
+
 ### Transformation 2 – Delivery Delay Calculation
 **Problem:** Delivery performance required a numeric comparison between the estimated and actual delivery date, which did not exist in the raw data.
 **Transformation:** A custom column `delivery_delay_days` was created using `Duration.Days([order_delivered_customer_date] - [order_estimated_delivery_date])`.
 **Reason:** This allowed delivery performance to be measured numerically per order.
 **Result:** A `delivery_delay_days` field was added to FactOrders (negative = early/on time, positive = late).
+
+![Delivery Delay](screenshots/Transformation_2.png)
 
 ### Transformation 3 – Delivery Performance Classification
 **Problem:** Raw numeric delivery delays were difficult to interpret at a glance, and some orders had no delivery date at all (never delivered).
@@ -91,11 +95,15 @@ Power Query was used to clean, transform and prepare the source data before load
 **Reason:** This allowed orders to be grouped and visualized by delivery outcome.
 **Result:** A `delivery_performance` categorical field usable directly in slicers and charts.
 
+![Delivery Performance](screenshots/Transformation_3.png)
+
 ### Transformation 4 – Date Type Alignment for Relationships
 **Problem:** `order_purchase_timestamp` is a Date/Time field (includes time-of-day), which prevented a clean relationship to the Date dimension — only rows landing exactly at midnight matched, causing most sales to fall into a blank date bucket.
 **Transformation:** A custom column `order_purchase_date`, using `Date.From([order_purchase_timestamp])`, was created and used as the relationship key to `DimDate` instead of the timestamp field.
 **Reason:** Relationships require exact matches; stripping the time component was necessary for correct time-based filtering.
 **Result:** Sales trend visuals now distribute correctly across the full date range instead of collapsing into a single blank bucket.
+
+![Date Type Alignment](screenshots/Transformation_4.png)
 
 ### Transformation 5 – Product Dimension Table
 **Problem:** Product attributes were mixed into a single flat products table with more columns than needed for analysis.
@@ -103,11 +111,15 @@ Power Query was used to clean, transform and prepare the source data before load
 **Reason:** This supports product-level analysis and a cleaner, purpose-built dimension table.
 **Result:** Product attributes can be used independently to filter sales without duplicating transactional data.
 
+![Product Dimension Table](screenshots/Transformation_5.png)
+
 ### Transformation 6 – Customer Dimension Table
 **Problem:** Customer attributes needed to be separated from transactional order information for clean geographic and customer-level analysis.
 **Transformation:** A referenced query, `DimCustomer`, was created, keeping `customer_id`, `customer_unique_id`, `customer_city`, and `customer_state`.
 **Reason:** Supports customer and geographic analysis independent of order-level detail.
 **Result:** Customer attributes can filter order information across the model.
+
+![Customer Dimension Table](screenshots/Transformation_6.png)
 
 ### Transformation 7 – Payment Summarization (Group By)
 **Problem:** Payment data was recorded at multiple rows per order (split across installments/payment types), unsuitable for direct order-level analysis.
@@ -115,11 +127,15 @@ Power Query was used to clean, transform and prepare the source data before load
 **Reason:** Reduces payment data to one row per order so it can relate cleanly to FactOrders.
 **Result:** A `PaymentSummary` table with one row per order, enabling accurate payment-related measures.
 
+![Payment Summarization](screenshots/Transformation_7.png)
+
 ### Transformation 8 – Review Summarization (Group By)
 **Problem:** A small number of orders had more than one review submitted, which would have caused duplicate rows and relationship errors if related directly.
 **Transformation:** A referenced query, `ReviewSummary`, was created using Group By on `order_id`, aggregating Average of `review_score`.
 **Reason:** Ensures one row per order for a clean one-to-many (or many-to-one) relationship to FactOrders.
 **Result:** A `ReviewSummary` table usable for review-based measures without relationship errors.
+
+![Review Summarization](screenshots/Transformation_8.png)
 
 ### Transformation 9 – Excluding the Geolocation Table
 **Problem:** The geolocation dataset (58MB, largest file) was not required for the analytical questions being answered and added unnecessary load time.
@@ -127,7 +143,7 @@ Power Query was used to clean, transform and prepare the source data before load
 **Reason:** Keeps the data model lean and focused on the tables actually used.
 **Result:** Faster refresh times and a cleaner Fields pane.
 
-![Power Query](screenshots/02_power_query.png)
+![Excluding Geolocation Table](screenshots/Transformation_9.png)
 
 ---
 
@@ -190,24 +206,36 @@ A total of 17 measures were developed, covering Level 1 (core), Level 2 (calcula
 - Total Payment Value
 - Average Payment Installments
 
+![Level 1 Measures](screenshots/Level_1_Measures.png)
+
 **Level 2 – Calculated Business Measures**
 - Average Order Value
 - Sales per Customer
 - Late Orders
 - Late Delivery %
 
+![Level 2 Measures](screenshots/Level_2_Measures.png)
+
 **Level 3 – Advanced DAX**
 - Category Sales Rank (`RANKX`, `ALL`)
 - Delivery Status Label (`SWITCH`)
 - Order Value vs Overall Avg (`VAR`, `CALCULATE`, `ALL`)
 
-### Six Key Measures Explained
+![Level 3 Measures](screenshots/Level_3_Measures.png)
 
-<!-- TODO: Paul — pick your 6 most important measures and, for each, write: what it calculates, why it's useful, main DAX functions used, how filter context affects it, and where it's used in the dashboard. Four examples are drafted below (including all 3 advanced ones) — replace/expand with your own wording, and add 2 more from the Level 1/2 list. -->
+### Six Key Measures Explained
 
 **Total Sales**
 `SUM(FactSales[price])`
 Calculates total revenue across all order line items. It's the primary KPI for the Executive Dashboard. Filter context from any slicer (date, state, category, delivery performance) automatically recalculates this value, which is what drives cross-filtering across the report.
+
+**Average Delivery Days**
+`AVERAGE(FactOrders[delivery_delay_days])`
+Calculates the average number of days between the actual delivery date and the estimated delivery date across all delivered orders. A negative result means orders arrive early on average; a positive result means they run late. It relies on the `delivery_delay_days` column built in Power Query (Transformation 2), so the DAX itself is simple, but it depends on that upstream transformation to exist. Filter context from the date, state, or category slicers reshapes the average to whichever subset is selected — for example, filtering to a single state shows whether that state's deliveries run ahead of or behind the national pattern. Used as a KPI card on the Executive Dashboard.
+
+**Sales per Customer**
+`DIVIDE([Total Sales], [Total Customers])`
+Calculates average revenue generated per unique customer. `DIVIDE()` is used instead of the `/` operator to avoid a divide-by-zero error if a filter combination returns zero customers. Because both `[Total Sales]` and `[Total Customers]` are themselves measures that respond to filter context, this measure automatically recalculates for any state, category, or date range selected elsewhere on the page — for instance, selecting one state shows that state's own sales-per-customer figure rather than the national one. Used to compare customer value across different segments.
 
 **Late Delivery %**
 `DIVIDE([Late Orders], [Total Orders])`
@@ -300,6 +328,8 @@ The dashboard uses:
 - `04_dashboard_overview.png` — Executive Dashboard (Page 1)
 - `05_dashboard_analysis.png` — Product & Seller Analysis (Page 2)
 - `06_dashboard_insights.png` — Diagnostic Insights (Page 3)
+- `Transformation_1.png` – `Transformation_9.png` — individual Power Query transformation steps (data types, delivery delay, delivery performance, date alignment, dimension tables, group-bys, geolocation exclusion)
+- `Level_1_Measures.png`, `Level_2_Measures.png`, `Level_3_Measures.png` — DAX measures grouped by rubric level (core, calculated business, advanced)
 
 ---
 
@@ -311,7 +341,15 @@ DSA3050-PowerBI-PaulMbuvi-669984/
 ├── README.md
 │
 ├── data/
-│   └── (9 Olist CSV files)
+│   ├── olist_customers_dataset.csv
+│   ├── olist_geolocation_dataset.csv
+│   ├── olist_order_items_dataset.csv
+│   ├── olist_order_payments_dataset.csv
+│   ├── olist_order_reviews_dataset.csv
+│   ├── olist_orders_dataset.csv
+│   ├── olist_products_dataset.csv
+│   ├── olist_sellers_dataset.csv
+│   └── product_category_name_translation.csv
 │
 ├── powerbi/
 │   └── DSA3050_Paul_Mbuvi_669984.pbix
@@ -322,5 +360,17 @@ DSA3050-PowerBI-PaulMbuvi-669984/
     ├── 03_model.png
     ├── 04_dashboard_overview.png
     ├── 05_dashboard_analysis.png
-    └── 06_dashboard_insights.png
+    ├── 06_dashboard_insights.png
+    ├── Transformation_1.png
+    ├── Transformation_2.png
+    ├── Transformation_3.png
+    ├── Transformation_4.png
+    ├── Transformation_5.png
+    ├── Transformation_6.png
+    ├── Transformation_7.png
+    ├── Transformation_8.png
+    ├── Transformation_9.png
+    ├── Level_1_Measures.png
+    ├── Level_2_Measures.png
+    └── Level_3_Measures.png
 ```
