@@ -6,11 +6,9 @@
 **Course:** DSA 3050A – Business Intelligence & Data Visualization
 **Tool:** Microsoft Power BI Desktop
 
----
-
 ## 1. Project Overview
 
-This project develops an interactive Business Intelligence solution using Power BI to analyze e-commerce sales, orders, customers, products, sellers, delivery performance, customer reviews and payments on the Olist Brazilian e-commerce marketplace.
+- This project develops an interactive Business Intelligence solution using Power BI to analyze e-commerce sales, orders, customers, products, sellers, delivery performance, customer reviews and payments on the Olist Brazilian e-commerce marketplace.
 
 The project follows the BI development process:
 
